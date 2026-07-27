@@ -1,0 +1,17 @@
+{
+  "name": "katena-ai-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Social media content agent with approval gate and 3D command center",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.111.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "multer": "^2.2.0",
+    "three": "^0.185.1"
+  }
+}

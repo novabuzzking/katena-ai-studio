@@ -1,0 +1,55 @@
+# Render blueprint for the Katena AI Studio.
+# Deploy: push this repo to GitHub, then Render → New → Blueprint → pick the repo.
+#
+# The studio is stateful (JSON store + uploaded photos), so it runs as a normal
+# web service with a mounted disk rather than anything serverless — a redeploy
+# would otherwise wipe every post and photo.
+services:
+  - type: web
+    name: katena-ai-studio
+    runtime: node
+    plan: starter # 'free' spins down when idle, which stops the scheduler and
+      # makes Meta's image fetch fail on a cold start. Starter stays warm.
+    region: ohio
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /uploads/
+
+    # Survives redeploys. DATA_DIR and UPLOADS_DIR below both point inside it.
+    disk:
+      name: katena-studio-data
+      mountPath: /var/data
+      sizeGB: 1
+
+    envVars:
+      - key: DATA_DIR
+        value: /var/data/data
+      - key: UPLOADS_DIR
+        value: /var/data/uploads
+
+      # Gates the dashboard and the approve/publish endpoints. Without it the
+      # publish routes would be open to anyone who finds the URL. Render
+      # generates the value; read it in the dashboard to log in (any username).
+      - key: STUDIO_SECRET
+        generateValue: true
+
+      # PUBLIC_BASE_URL is intentionally omitted — the code falls back to
+      # RENDER_EXTERNAL_URL, which Render sets to this service's public URL.
+
+      # Secrets — set these in the Render dashboard, never in this file.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: META_ACCESS_TOKEN
+        sync: false
+      - key: FB_PAGE_ACCESS_TOKEN
+        sync: false
+      - key: LINKEDIN_ACCESS_TOKEN
+        sync: false
+
+      # Account ids — set in the Render dashboard, kept out of the repo.
+      - key: IG_USER_ID
+        sync: false
+      - key: FB_PAGE_ID
+        sync: false
+      - key: LINKEDIN_ORG_URN
+        sync: false

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Katena Post Studio</title>
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.min.js",
+    "three/addons/controls/OrbitControls.js": "./vendor/OrbitControls.js"
+  }
+}
+</script>
+</head>
+<body>
+
+<header id="topbar">
+  <div class="brand">
+    <div class="mark">K</div>
+    <div>
+      <h1>Katena Post Studio</h1>
+      <p>Your job-site photos, turned into posts — you just say yes.</p>
+    </div>
+  </div>
+  <div id="mode-note" class="mode"><span class="dot"></span><span id="mode-text">Checking…</span></div>
+</header>
+
+<main>
+  <!-- Step 1 -->
+  <section class="card add-card" id="add-section">
+    <div class="step-label"><span class="step-num">1</span> Add a photo from the job site</div>
+    <label id="dropzone" for="file-input">
+      <button type="button" class="big-btn choose" onclick="document.getElementById('file-input').click(); event.preventDefault();">
+        Choose a photo
+      </button>
+      <span class="or">…or drag a photo onto this box</span>
+      <input id="file-input" type="file" accept="image/*" hidden>
+    </label>
+    <div class="note-row">
+      <label for="note-input">What&rsquo;s in the photo? <span class="opt">(a few words — optional)</span></label>
+      <input id="note-input" type="text" placeholder="For example: Level 34 glass panels going in">
+    </div>
+    <p class="reassure">We write the post for you. Nothing goes out until you say yes.</p>
+  </section>
+
+  <!-- Step 2 -->
+  <section class="card" id="review-section">
+    <div class="step-label"><span class="step-num">2</span> Read the post and say yes or no
+      <span id="review-count" class="count-pill"></span>
+    </div>
+    <div id="review-list"></div>
+    <p id="review-empty" class="empty" hidden>Nothing waiting for you right now. Add a photo above and a post will appear here.</p>
+  </section>
+
+  <div class="two-col">
+    <!-- Step 3 -->
+    <section class="card" id="upcoming-section">
+      <div class="step-label"><span class="step-num">3</span> We post them for you</div>
+      <p class="schedule-line">Posts go out <strong>3 times a week</strong> — Monday, Wednesday and Friday at 10 in the morning.</p>
+      <h3>Booked and waiting</h3>
+      <div id="upcoming-list"></div>
+      <h3>Already posted</h3>
+      <div id="posted-list"></div>
+    </section>
+
+    <!-- Tower -->
+    <section class="card tower-card">
+      <div class="step-label">Your posting tower</div>
+      <p class="tower-blurb">The tower grows as your story gets told — one floor for every post.</p>
+      <div class="tower-wrap"><canvas id="scene"></canvas></div>
+      <ul class="legend">
+        <li><span class="swatch lit"></span> Lit floors — posts already out</li>
+        <li><span class="swatch glass"></span> Glass floor — booked, going out soon</li>
+        <li><span class="swatch crate"></span> Crate on the crane — waiting for your yes</li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<footer id="ticker"><span class="label">Latest:</span> <span id="ticker-text">Starting up…</span></footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

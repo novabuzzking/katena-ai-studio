@@ -1,0 +1,15 @@
+# Secrets — tokens for Katena's live social accounts. Never commit.
+.env
+.env.*
+!.env.example
+
+node_modules/
+
+# Runtime state. Lives on Render's mounted disk in production; the local copies
+# hold real crew photos and drafted posts, so they stay out of the repo.
+data/
+uploads/
+
+.DS_Store
+*.log
+PRIVATE-SETUP.md
