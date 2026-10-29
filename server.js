@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 
 import { getState, addPost, findPost, save, log } from "./lib/store.js";
 import { generatePost, hasClaudeKey } from "./lib/generate.js";
+import { preparePhoto } from "./lib/images.js";
 import { networkStatus } from "./lib/publishers.js";
 import { upcomingSlots, assignSlot, startScheduler, tick } from "./lib/scheduler.js";
 
@@ -77,11 +78,12 @@ app.get("/api/state", (_req, res) => {
 app.post("/api/photos", upload.single("photo"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "No image received (jpeg/png/webp/gif)." });
+    const id = randomUUID().slice(0, 8);
     const post = addPost({
-      id: randomUUID().slice(0, 8),
+      id,
       createdAt: new Date().toISOString(),
       status: "generating",
-      photo: { filename: req.file.filename, path: req.file.path, mime: req.file.mimetype },
+      photo: await intakePhoto(req.file, id),
       note: req.body.note || "",
       caption: null,
     });
@@ -102,6 +104,35 @@ app.post("/api/photos", upload.single("photo"), async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Normalise the upload — orientation, sRGB, size, contrast lift, Instagram
+// crop (see lib/images.js). The raw file stays on disk untouched; if
+// preparation fails the post uses it as-is so a bad photo never blocks intake.
+async function intakePhoto(file, postId) {
+  const raw = { filename: file.filename, path: file.path, mime: file.mimetype };
+  try {
+    const p = await preparePhoto(file.path, { dir: UPLOADS_DIR });
+    log(
+      `Photo prepared — ${p.source.width}×${p.source.height} → ${p.main.width}×${p.main.height}` +
+        (p.enhanced ? ", contrast lifted" : "") +
+        (p.instagram.cropped ? `, cropped to ${p.instagram.ratio} for Instagram` : ""),
+      { postId }
+    );
+    return {
+      filename: p.main.filename,
+      path: p.main.path,
+      mime: "image/jpeg",
+      width: p.main.width,
+      height: p.main.height,
+      instagram: p.instagram.filename,
+      original: raw.filename,
+      enhanced: p.enhanced,
+    };
+  } catch (err) {
+    log(`Photo kept as uploaded — preparation failed: ${err.message}`, { postId });
+    return raw;
+  }
+}
 
 // ---------- approval workflow ----------
 app.post("/api/posts/:id/approve", (req, res) => {

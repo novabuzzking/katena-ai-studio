@@ -7,7 +7,11 @@ center for visibility.
 ## What it does
 
 1. **Photo intake** — crew drops a job-site photo into the dashboard (drag &
-   drop, works from a phone) with an optional one-line note.
+   drop, works from a phone) with an optional one-line note. The photo is
+   prepared on the spot: orientation fixed, Display P3 converted to sRGB, EXIF
+   (incl. GPS) stripped, resized to 2048 px, contrast lifted (haze cut, auto
+   levels, light sharpening), plus an Instagram-safe crop — see `lib/images.js`.
+   `PHOTO_ENHANCE=off` keeps the contrast as shot.
 2. **Drafting** — Claude (vision) reads the photo + `brand/voice.md` and drafts
    a LinkedIn post, an Instagram caption, hashtags, and alt text as structured
    JSON. No key yet? It produces clearly-marked demo copy so the pipeline is
@@ -47,6 +51,7 @@ node server.js         # → http://localhost:8787
 
 ```
 server.js            Express app: intake, approval, scheduling, publishing
+lib/images.js        Photo prep: orientation, sRGB, resize, contrast lift, IG crop
 lib/generate.js      Claude vision call → structured post JSON (+ demo fallback)
 lib/publishers.js    LinkedIn + Instagram publishers (simulate when keyless)
 lib/scheduler.js     Mon/Wed/Fri slot assignment + 60s publish ticker
